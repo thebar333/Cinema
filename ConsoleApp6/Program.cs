@@ -12,6 +12,9 @@ namespace Login_Sys
     {
         static void Main()
         {
+            Login login = new Login();
+            login.Logon();
+
         }
     }
     class utilities
@@ -189,6 +192,7 @@ namespace Login_Sys
         {
             return accessLevel;
         }
+        protected int attemptNum = 0;
         protected string[] getUsers()
         {
             string[] users = new string[100];
@@ -218,6 +222,7 @@ namespace Login_Sys
         }
         public void Logon()
         {
+
             Console.Clear();
             string[] users = getUsers();
             string[] passHashed = getPassHash();
@@ -257,6 +262,7 @@ namespace Login_Sys
                     Console.WriteLine("UserName or password incorrect.");
                     Console.WriteLine("Press any key to continue");
                     Console.ForegroundColor = ConsoleColor.White;
+                    attemptNum++;
                     Console.ReadKey();
                     Console.Clear();
                     this.Logon();
@@ -269,6 +275,7 @@ namespace Login_Sys
                 Console.WriteLine("UserName or password incorrect");
                 Console.WriteLine("Press any key to continue");
                 Console.ForegroundColor = ConsoleColor.White;
+                attemptNum++;
                 Console.ReadKey();
                 Console.Clear();
                 this.Logon();
