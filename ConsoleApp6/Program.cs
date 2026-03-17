@@ -63,30 +63,74 @@ namespace Login_Sys
         private string seatType;
         private string seatName;
         private bool isFull;
-
+    
         // constructor
-        public Seat(string type, string name)
+        public Seat(string type, string name, bool full)
         {
             seatType = type;
             seatName = name;
-            isFull = false;
+            isFull = full;
         }
-        class Room
+        public string getseatName()
         {
-            private int seatNum;
-            private Seat[,] seatingPlan;
-            private Dictionary<string, string> moviesToShow;
-            private int screenNumber;
-            private bool isFull;
-
-            //constructor
-            public Room(int roomNumber, int rows, int columns)
+            return seatName;
+        }
+        public bool getisFull()
+        {
+            return isFull;
+        }
+    }
+    class Room
+    {
+        private int seatNum;
+        private Seat[,] seatingPlan;
+        private Dictionary<string, string> moviesToShow;
+        private int screenNumber;
+        private bool isFull;
+        private string textfilename;
+        private int screen_rows;
+        private int screen_columns;
+    
+        //constructor
+        public Room(int roomNumber, int rows, int columns)
+        {
+            screenNumber = roomNumber;
+            seatNum = rows * columns;
+            screen_rows = rows;
+            screen_columns = columns;
+            seatingPlan = new Seat[rows, columns];
+            Console.Write($"Please write the textfile name for this screen room #{roomNumber}:");
+            textfilename = $"screen{roomNumber}" + ".txt";
+            // adding all the seats in
+            if (File.Exists(textfilename) == true)
             {
-                screenNumber = roomNumber;
-                seatNum = rows * columns;
-                seatingPlan = new Seat[rows, columns];
-
-                // adding all the seats in
+                StreamReader SR = new StreamReader(textfilename);
+                string placeholder = SR.ReadLine();
+                string[] placeholderlist = placeholder.Split('|');
+                screen_rows = Convert.ToInt32(placeholderlist[0]);
+                screen_columns = Convert.ToInt32(placeholderlist[1]);
+                for(int i = 0; i < screen_columns; i++)
+                {
+                    placeholder = SR.ReadLine();
+                    placeholderlist = placeholder.Split('|');
+                    for (int j = 0; j < screen_rows; j++)
+                    {
+                        if (screen_columns == 1)
+                        {
+                            string[] placeholderlist2 = placeholderlist[j].Split(',');
+                            seatingPlan[j, i] = new Seat(placeholderlist2[0], "Premium" ,Convert.ToBoolean(placeholderlist2[1]));
+                        }
+                        else
+                        {
+                            string[] placeholderlist2 = placeholderlist[j].Split(',');
+                            seatingPlan[j, i] = new Seat(placeholderlist2[0], "Standard", Convert.ToBoolean(placeholderlist2[1]));
+                        }
+                    }
+                }
+                SR.Close();
+            }
+            else
+            {
                 for (int r = 0; r < rows; r++)
                 {
                     for (int c = 0; c < columns; c++)
@@ -95,199 +139,223 @@ namespace Login_Sys
                         Char rowLetter = (char)('A' + r);
                         Char columnNumber = (char)(c + 1);
                         string seatName = $"{rowLetter}{columnNumber}";
-
+    
                         // if seat is in the back row (row 1) its Premium, rest are standard
                         if (columnNumber == 1)
                         {
-                            seatingPlan[r, c] = new Seat(seatName, "Premium");
+                            seatingPlan[r, c] = new Seat(seatName, "Premium", false);
                         }
                         else
                         {
-                            seatingPlan[r, c] = new Seat(seatName, "Standard");
+                            seatingPlan[r, c] = new Seat(seatName, "Standard", false);
                         }
+    
+    
                     }
-                }
-
-            }
-            public class Login
-            {
-                protected int accessLevel = 0;
-                protected void SetAccessLevel(int newLevel)
-                {
-                    accessLevel = newLevel;
-                }
-                public int GetAccessLevel()
-                {
-                    return accessLevel;
-                }
-                protected string[] getUsers()
-                {
-                    string[] users = new string[100];
-                    StreamReader sr = new StreamReader("users.txt");
-                    var lineCount = File.ReadLines(@"users.txt").Count();
-                    for (int i = 0; i < lineCount + 1 / 2; i = i + 2)
-                    {
-                        users[i] = sr.ReadLine();
-                        sr.ReadLine();
-                    }
-                    sr.Close();
-
-                    return users;
-                }
-                protected string[] getPassHash()
-                {
-                    string[] passHashed = new string[100];
-                    StreamReader sr = new StreamReader("users.txt");
-                    var lineCount = File.ReadLines(@"users.txt").Count();
-                    for (int i = 0; i < lineCount + 1 / 2; i = i + 2)
-                    {
-                        sr.ReadLine();
-                        passHashed[i] = sr.ReadLine();
-                    }
-                    sr.Close();
-                    return passHashed;
-                }
-                public void Logon()
-                {
-                    Console.Clear();
-                    string[] users = getUsers();
-                    string[] passHashed = getPassHash();
-                    Console.WriteLine("\n    Welcome to the Cinema Managment Sys");
-                    Console.WriteLine("    Please enter your username and password to login. Password is still typing even if you dont see it.");
-                    Console.WriteLine("    Username: ");
-                    Console.Write("    Password:"); // both test users password is Password123. - 
-                                                    // PREPOPULATE LOGIN WITH MANAGER AND EMPLOYEE SPECIFIC LOGIN.
-                    Console.SetCursorPosition(14, 3);
-                    string Username = Console.ReadLine();
-                    Console.SetCursorPosition(14, 4);
-                    string inputPass = null;
-                    while (true)
-                    {
-                        var key = Console.ReadKey(true);
-                        if (key.Key == ConsoleKey.Enter)
-                            break;
-                        inputPass += key.KeyChar;
-                    }
-                    Console.Write("\n");
-                    int userIndex = Array.FindIndex(users, u => u == Username);
-                    if (userIndex >= 0)
-                    {
-                        int hashedPass = this.hashPass(inputPass);
-                        if (passHashed[userIndex] == hashedPass.ToString())
-                        {
-                            Console.WriteLine("Login successful.");
-                            if (Username == "Manager")
-                            {
-                                SetAccessLevel(1);
-                            }
-                        }
-                        else
-                        {
-                            Console.Clear();
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("UserName or password incorrect.");
-                            Console.WriteLine("Press any key to continue");
-                            Console.ForegroundColor = ConsoleColor.White;
-                            Console.ReadKey();
-                            Console.Clear();
-                            this.Logon();
-                        }
-                    }
-                    else
-                    {
-                        Console.Clear();
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("UserName or password incorrect");
-                        Console.WriteLine("Press any key to continue");
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.ReadKey();
-                        Console.Clear();
-                        this.Logon();
-                    }
-                }
-                public void SignUp()
-                {
-                    string[] users = getUsers();
-                    StreamWriter sw = new StreamWriter("users.txt", true);
-                    Console.Clear();
-                    Console.WriteLine("\n    ");
-                    Console.WriteLine("    Please enter your username and password to sign up, password is typing even if you dont see it.");
-                    Console.WriteLine("    Username: ");
-                    Console.WriteLine("    Password:");
-                    Console.Write("    Confirm Password:");
-                    Console.SetCursorPosition(14, 3);
-                    string Username = Console.ReadLine();
-                    Console.SetCursorPosition(14, 4);
-                    string inputPass = null;
-                    while (true)
-                    {
-                        var key = Console.ReadKey(true);
-                        if (key.Key == ConsoleKey.Enter)
-                            break;
-                        inputPass += key.KeyChar;
-                    }
-                    Console.SetCursorPosition(22, 5);
-                    string confirmPass = null;
-                    while (true)
-                    {
-                        var key = Console.ReadKey(true);
-                        if (key.Key == ConsoleKey.Enter)
-                            break;
-                        confirmPass += key.KeyChar;
-                    }
-                    if (inputPass == confirmPass)
-                    {
-                        Console.Write("");
-                    }
-                    else
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Passwords do not match");
-                        Console.WriteLine("Press any key to continue");
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.ReadKey();
-                        Console.Clear();
-                        this.SignUp();
-                    }
-                    int userIndex = Array.FindIndex(users, u => u == Username);
-                    if (userIndex >= 0)
-                    {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("UserName Already exists. Pick a new one.");
-                        Console.WriteLine("Press any key to continue");
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.ReadKey();
-                        Console.Clear();
-                        this.SignUp();
-                    }
-                    string inputHash = Convert.ToString(hashPass(inputPass));
-                    sw.WriteLine();
-                    sw.WriteLine(Username);
-                    sw.WriteLine(inputHash);
-                    sw.Close();
-
-                }
-                protected int hashPass(string pass)
-                {
-                    int startNum = 0;
-                    for (int i = 0; i < pass.Length; i++)
-                    {
-                        char c = pass[i];
-                        int inpNum = c - '0';
-                        if (i % 2 == 0)
-                        {
-                            inpNum = inpNum * i;
-                        }
-                        startNum += inpNum * i;
-                    }
-                    startNum = startNum * 999331;
-                    startNum = startNum % 429496729;
-                    return startNum;
                 }
             }
         }
+        public void save()
+        {
+            StreamWriter SW = new StreamWriter(textfilename);
+            SW.WriteLine($"{screen_rows}|{screen_columns}");
+            for(int i = 0; i < screen_columns; i++)
+            {
+                for(int j = 0; i < screen_rows; j++)
+                {
+                    if (j == screen_rows - 1)
+                    {
+                        SW.Write($"{seatingPlan[j,i].getseatName()}, {seatingPlan[j, i].getisFull()}");
+                    }
+                    else
+                    {
+                        SW.Write($"{seatingPlan[j, i].getseatName()}, {seatingPlan[j, i].getisFull()}|");
+                    }
+                }
+                SW.WriteLine();
+            }
+            SW.Close();
+        }
+    }
+
+    public class Login
+    {
+        protected int accessLevel = 0;
+        protected void SetAccessLevel(int newLevel)
+        {
+            accessLevel = newLevel;
+        }
+        public int GetAccessLevel()
+        {
+            return accessLevel;
+        }
+        protected string[] getUsers()
+        {
+            string[] users = new string[100];
+            StreamReader sr = new StreamReader("users.txt");
+            var lineCount = File.ReadLines(@"users.txt").Count();
+            for (int i = 0; i < lineCount + 1 / 2; i = i + 2)
+            {
+                users[i] = sr.ReadLine();
+                sr.ReadLine();
+            }
+            sr.Close();
+
+            return users;
+        }
+        protected string[] getPassHash()
+        {
+            string[] passHashed = new string[100];
+            StreamReader sr = new StreamReader("users.txt");
+            var lineCount = File.ReadLines(@"users.txt").Count();
+            for (int i = 0; i < lineCount + 1 / 2; i = i + 2)
+            {
+                sr.ReadLine();
+                passHashed[i] = sr.ReadLine();
+            }
+            sr.Close();
+            return passHashed;
+        }
+        public void Logon()
+        {
+            Console.Clear();
+            string[] users = getUsers();
+            string[] passHashed = getPassHash();
+            Console.WriteLine("\n    Welcome to the Cinema Managment Sys");
+            Console.WriteLine("    Please enter your username and password to login. Password is still typing even if you dont see it.");
+            Console.WriteLine("    Username: ");
+            Console.Write("    Password:"); // both test users password is Password123. - 
+                                            // PREPOPULATE LOGIN WITH MANAGER AND EMPLOYEE SPECIFIC LOGIN.
+            Console.SetCursorPosition(14, 3);
+            string Username = Console.ReadLine();
+            Console.SetCursorPosition(14, 4);
+            string inputPass = null;
+            while (true)
+            {
+                var key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.Enter)
+                    break;
+                inputPass += key.KeyChar;
+            }
+            Console.Write("\n");
+            int userIndex = Array.FindIndex(users, u => u == Username);
+            if (userIndex >= 0)
+            {
+                int hashedPass = this.hashPass(inputPass);
+                if (passHashed[userIndex] == hashedPass.ToString())
+                {
+                    Console.WriteLine("Login successful.");
+                    if (Username == "Manager")
+                    {
+                        SetAccessLevel(1);
+                    }
+                }
+                else
+                {
+                    Console.Clear();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("UserName or password incorrect.");
+                    Console.WriteLine("Press any key to continue");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ReadKey();
+                    Console.Clear();
+                    this.Logon();
+                }
+            }
+            else
+            {
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("UserName or password incorrect");
+                Console.WriteLine("Press any key to continue");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.ReadKey();
+                Console.Clear();
+                this.Logon();
+            }
+        }
+        public void SignUp()
+        {
+            string[] users = getUsers();
+            StreamWriter sw = new StreamWriter("users.txt", true);
+            Console.Clear();
+            Console.WriteLine("\n    ");
+            Console.WriteLine("    Please enter your username and password to sign up, password is typing even if you dont see it.");
+            Console.WriteLine("    Username: ");
+            Console.WriteLine("    Password:");
+            Console.Write("    Confirm Password:");
+            Console.SetCursorPosition(14, 3);
+            string Username = Console.ReadLine();
+            Console.SetCursorPosition(14, 4);
+            string inputPass = null;
+            while (true)
+            {
+                var key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.Enter)
+                    break;
+                inputPass += key.KeyChar;
+            }
+            Console.SetCursorPosition(22, 5);
+            string confirmPass = null;
+            while (true)
+            {
+                var key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.Enter)
+                    break;
+                confirmPass += key.KeyChar;
+            }
+            if (inputPass == confirmPass)
+            {
+                Console.Write("");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Passwords do not match");
+                Console.WriteLine("Press any key to continue");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.ReadKey();
+                Console.Clear();
+                this.SignUp();
+            }
+            int userIndex = Array.FindIndex(users, u => u == Username);
+            if (userIndex >= 0)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("UserName Already exists. Pick a new one.");
+                Console.WriteLine("Press any key to continue");
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.ReadKey();
+                Console.Clear();
+                this.SignUp();
+            }
+            string inputHash = Convert.ToString(hashPass(inputPass));
+            sw.WriteLine();
+            sw.WriteLine(Username);
+            sw.WriteLine(inputHash);
+            sw.Close();
+
+        }
+        protected int hashPass(string pass)
+        {
+            int startNum = 0;
+            for (int i = 0; i < pass.Length; i++)
+            {
+                char c = pass[i];
+                int inpNum = c - '0';
+                if (i % 2 == 0)
+                {
+                    inpNum = inpNum * i;
+                }
+                startNum += inpNum * i;
+            }
+            startNum = startNum * 999331;
+            startNum = startNum % 429496729;
+            return startNum;
+        }
     }
 }
+
 
 
 // USERS TXT FILE FORMAT
