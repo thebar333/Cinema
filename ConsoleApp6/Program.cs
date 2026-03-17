@@ -54,6 +54,7 @@ namespace Login_Sys
         {
             if (Type == "Student" | Type == "student") { return Cost - (Cost / 10); }
             else if (Type == "Senior" | Type == "senior" ) { return Cost - (Cost / 5); }
+            else if (Type == "Prenium" | Type == "prenium") { return Cost + (Cost / 2); }
             else { return Cost; }
         }
     }
