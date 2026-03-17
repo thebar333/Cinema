@@ -63,30 +63,74 @@ namespace Login_Sys
         private string seatType;
         private string seatName;
         private bool isFull;
-
+    
         // constructor
-        public Seat(string type, string name)
+        public Seat(string type, string name, bool full)
         {
             seatType = type;
             seatName = name;
-            isFull = false;
+            isFull = full;
         }
-        class Room
+        public string getseatName()
         {
-            private int seatNum;
-            private Seat[,] seatingPlan;
-            private Dictionary<string, string> moviesToShow;
-            private int screenNumber;
-            private bool isFull;
-
-            //constructor
-            public Room(int roomNumber, int rows, int columns)
+            return seatName;
+        }
+        public bool getisFull()
+        {
+            return isFull;
+        }
+    }
+    class Room
+    {
+        private int seatNum;
+        private Seat[,] seatingPlan;
+        private Dictionary<string, string> moviesToShow;
+        private int screenNumber;
+        private bool isFull;
+        private string textfilename;
+        private int screen_rows;
+        private int screen_columns;
+    
+        //constructor
+        public Room(int roomNumber, int rows, int columns)
+        {
+            screenNumber = roomNumber;
+            seatNum = rows * columns;
+            screen_rows = rows;
+            screen_columns = columns;
+            seatingPlan = new Seat[rows, columns];
+            Console.Write($"Please write the textfile name for this screen room #{roomNumber}:");
+            textfilename = $"screen{roomNumber}" + ".txt";
+            // adding all the seats in
+            if (File.Exists(textfilename) == true)
             {
-                screenNumber = roomNumber;
-                seatNum = rows * columns;
-                seatingPlan = new Seat[rows, columns];
-
-                // adding all the seats in
+                StreamReader SR = new StreamReader(textfilename);
+                string placeholder = SR.ReadLine();
+                string[] placeholderlist = placeholder.Split('|');
+                screen_rows = Convert.ToInt32(placeholderlist[0]);
+                screen_columns = Convert.ToInt32(placeholderlist[1]);
+                for(int i = 0; i < screen_columns; i++)
+                {
+                    placeholder = SR.ReadLine();
+                    placeholderlist = placeholder.Split('|');
+                    for (int j = 0; j < screen_rows; j++)
+                    {
+                        if (screen_columns == 1)
+                        {
+                            string[] placeholderlist2 = placeholderlist[j].Split(',');
+                            seatingPlan[j, i] = new Seat(placeholderlist2[0], "Premium" ,Convert.ToBoolean(placeholderlist2[1]));
+                        }
+                        else
+                        {
+                            string[] placeholderlist2 = placeholderlist[j].Split(',');
+                            seatingPlan[j, i] = new Seat(placeholderlist2[0], "Standard", Convert.ToBoolean(placeholderlist2[1]));
+                        }
+                    }
+                }
+                SR.Close();
+            }
+            else
+            {
                 for (int r = 0; r < rows; r++)
                 {
                     for (int c = 0; c < columns; c++)
@@ -95,20 +139,45 @@ namespace Login_Sys
                         Char rowLetter = (char)('A' + r);
                         Char columnNumber = (char)(c + 1);
                         string seatName = $"{rowLetter}{columnNumber}";
-
+    
                         // if seat is in the back row (row 1) its Premium, rest are standard
                         if (columnNumber == 1)
                         {
-                            seatingPlan[r, c] = new Seat(seatName, "Premium");
+                            seatingPlan[r, c] = new Seat(seatName, "Premium", false);
                         }
                         else
                         {
-                            seatingPlan[r, c] = new Seat(seatName, "Standard");
+                            seatingPlan[r, c] = new Seat(seatName, "Standard", false);
                         }
+    
+    
                     }
                 }
-
             }
+        }
+        public void save()
+        {
+            StreamWriter SW = new StreamWriter(textfilename);
+            SW.WriteLine($"{screen_rows}|{screen_columns}");
+            for(int i = 0; i < screen_columns; i++)
+            {
+                for(int j = 0; i < screen_rows; j++)
+                {
+                    if (j == screen_rows - 1)
+                    {
+                        SW.Write($"{seatingPlan[j,i].getseatName()}, {seatingPlan[j, i].getisFull()}");
+                    }
+                    else
+                    {
+                        SW.Write($"{seatingPlan[j, i].getseatName()}, {seatingPlan[j, i].getisFull()}|");
+                    }
+                }
+                SW.WriteLine();
+            }
+            SW.Close();
+        }
+    }
+
             public class Login
             {
                 protected int accessLevel = 0;
