@@ -399,6 +399,17 @@ namespace Login_Sys
             return accessLevel;
         }
         protected int attemptNum = 0;
+        protected string vernierEncryption(string s) //takes last 5 char as key
+        {
+            if (s.Length <= 5) return Convert.ToBase64String(Encoding.ASCII.GetBytes(s));
+            string m = s.Substring(0, s.Length - 5);
+            string k = s.Substring(s.Length - 5);
+            byte[] b = Encoding.ASCII.GetBytes(m);
+            byte[] r = new byte[b.Length];
+            for (int i = 0; i < b.Length; i++)
+            { r[i] = (byte)((b[i] + k[i % 5]) % 256); }
+            return Convert.ToBase64String(r.Concat(Encoding.ASCII.GetBytes(k)).ToArray());
+        }
         protected string[] getUsers()
         {
             string[] users = new string[100];
@@ -447,13 +458,25 @@ namespace Login_Sys
                 if (key.Key == ConsoleKey.Enter)
                     break;
                 inputPass += key.KeyChar;
+                Console.SetCursorPosition(13 + inputPass.Length, 4);
+                if (inputPass.Length != 1)
+                {
+                    Console.Write("*"); 
+                    Console.Write($"{key.KeyChar}");
+                }
+                else if (inputPass.Length == 1)
+                {
+                    Console.Write("*"); 
+                }
+                    
             }
             Console.Write("\n");
             int userIndex = Array.FindIndex(users, u => u == Username);
             if (userIndex >= 0)
             {
-                int hashedPass = this.hashPass(inputPass);
-                if (passHashed[userIndex] == hashedPass.ToString())
+                string partHashPass = this.vernierEncryption(inputPass);
+                int hashPass = this.hashPass(partHashPass);
+                if (passHashed[userIndex] == hashPass.ToString())
                 {
                     Console.WriteLine("Login successful.");
                     if (Username == "Manager")
@@ -549,12 +572,12 @@ namespace Login_Sys
             sw.Close();
 
         }
-        protected int hashPass(string pass)
+        protected int hashPass(string s)
         {
             int startNum = 0;
-            for (int i = 0; i < pass.Length; i++)
+            for (int i = 0; i < s.Length; i++)
             {
-                char c = pass[i];
+                char c = s[i];
                 int inpNum = c - '0';
                 if (i % 2 == 0)
                 {
