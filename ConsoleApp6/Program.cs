@@ -14,7 +14,10 @@ namespace Login_Sys
         {
             Login login = new Login();
             login.Logon();
-
+            Console.WriteLine(login.GetAccessLevel());
+            int AL = login.GetAccessLevel();
+            utilities util = new utilities();
+            util.showMenu(AL);
         }
     }
     class utilities
@@ -56,9 +59,213 @@ namespace Login_Sys
         public int Discounts(string Type, int Cost)
         {
             if (Type == "Student" | Type == "student") { return Cost - (Cost / 10); }
-            else if (Type == "Senior" | Type == "senior" ) { return Cost - (Cost / 5); }
+            else if (Type == "Senior" | Type == "senior") { return Cost - (Cost / 5); }
             else if (Type == "Prenium" | Type == "prenium") { return Cost + (Cost / 2); }
             else { return Cost; }
+        }
+        public void showMenu(int accessLevel)
+        {
+
+            if (accessLevel == 1)
+            {
+                managerMenu(accessLevel);
+            }
+            else
+            {
+                employeeMenu(accessLevel);
+            }
+        }
+        protected void employeeMenu(int accessLevel)
+        {
+            bool running = true;
+            while (running)
+            {
+                int option = menuEmployee("Cinema");
+                switch (option)
+                {
+                    //HI is placeholder for actual code and classes.
+                    case 0:
+                        Console.WriteLine("view yo seats");
+                        Console.ReadLine();
+                        break;
+                    case 1:
+                        Console.WriteLine("book yo seats");
+                        Console.ReadLine();
+                        break;
+                    case 2:
+                        Console.WriteLine("view yo screenings");
+                        Console.ReadLine();
+                        break;
+                    case 3:
+                        running = false;
+                        Console.WriteLine("\n\n          System shutting down...");
+                        break;
+                }
+            }
+        }
+        protected static int menuEmployee(string hotelName)
+        {
+            string[] options = {
+                "View Seats",
+                "Book Seats",
+                "View Screenings",
+                "Exit"
+            };
+            int currentSelection = 0;
+
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine($"\n\n          {hotelName} Management Sys");
+                Console.WriteLine("          Choose An Option\n");
+
+
+                for (int i = 0; i < options.Length; i++)
+                {
+                    Console.Write("          ");
+
+                    if (i == currentSelection)
+                    {
+                        Console.BackgroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.WriteLine($">> {options[i]} <<");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"   {options[i]}   ");
+                    }
+                    Console.WriteLine();
+                }
+
+
+                var key = Console.ReadKey(true);
+
+
+                if (key.Key == ConsoleKey.UpArrow)
+                {
+                    currentSelection--;
+                    if (currentSelection < 0) currentSelection = options.Length - 1;
+                }
+                else if (key.Key == ConsoleKey.DownArrow)
+                {
+                    currentSelection++;
+                    if (currentSelection >= options.Length) currentSelection = 0;
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    return currentSelection;
+                }
+            }
+        }
+
+        protected void managerMenu(int accessLevel)
+        {
+            bool running = true;
+            while (running)
+            {
+
+                int option = menuManager("Cinema");
+                switch (option)
+                {
+                    //HI is placeholder for actual code and classes.
+                    case 0:
+                        Console.WriteLine("view yo seats");
+                        Console.ReadLine();
+                        break;
+                    case 1:
+                        Console.WriteLine("book yo seats");
+                        Console.ReadLine();
+                        break;
+                    case 2:
+                        Console.WriteLine("view yo screenings");
+                        Console.ReadLine();
+                        break;
+                    case 3:
+                        Console.WriteLine("view thy report of financies");
+                        Console.ReadLine();
+                        if (accessLevel == 0)
+                        { break; }
+                        else
+                        {//call here break; }
+                            break;
+                        }
+                    case 4:
+                        Console.WriteLine("create a new screnning");
+                        Console.ReadLine();
+                        if (accessLevel == 0)
+                        { break; }
+                        else
+                        {//call here break; }
+                        }
+                        break;
+                    case 5:
+                        running = false;
+                        Console.WriteLine("\n\n          System shutting down...");
+                        break;
+                }
+            }
+        }
+        protected static int menuManager(string hotelName)
+        {
+            string[] options = {
+                    "View Seats",
+                    "Book Seats",
+                    "View Screenings",
+                    "Financial ReporT",
+                    "New Screening",
+                    "Exit"
+                };
+
+
+            int currentSelection = 0;
+
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine($"\n\n          {hotelName} Management Sys");
+                Console.WriteLine("          Choose An Option\n");
+
+
+                for (int i = 0; i < options.Length; i++)
+                {
+                    Console.Write("          ");
+
+                    if (i == currentSelection)
+                    {
+                        Console.BackgroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.WriteLine($">> {options[i]} <<");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"   {options[i]}   ");
+                    }
+                    Console.WriteLine();
+                }
+
+
+                var key = Console.ReadKey(true);
+
+
+                if (key.Key == ConsoleKey.UpArrow)
+                {
+                    currentSelection--;
+                    if (currentSelection < 0) currentSelection = options.Length - 1;
+                }
+                else if (key.Key == ConsoleKey.DownArrow)
+                {
+                    currentSelection++;
+                    if (currentSelection >= options.Length) currentSelection = 0;
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    return currentSelection;
+                }
+            }
         }
     }
     class Seat
@@ -66,7 +273,7 @@ namespace Login_Sys
         private string seatType;
         private string seatName;
         private bool isFull;
-    
+
         // constructor
         public Seat(string type, string name, bool full)
         {
@@ -93,7 +300,7 @@ namespace Login_Sys
         private string textfilename;
         private int screen_rows;
         private int screen_columns;
-    
+
         //constructor
         public Room(int roomNumber, int rows, int columns)
         {
@@ -112,7 +319,7 @@ namespace Login_Sys
                 string[] placeholderlist = placeholder.Split('|');
                 screen_rows = Convert.ToInt32(placeholderlist[0]);
                 screen_columns = Convert.ToInt32(placeholderlist[1]);
-                for(int i = 0; i < screen_columns; i++)
+                for (int i = 0; i < screen_columns; i++)
                 {
                     placeholder = SR.ReadLine();
                     placeholderlist = placeholder.Split('|');
@@ -121,7 +328,7 @@ namespace Login_Sys
                         if (screen_columns == 1)
                         {
                             string[] placeholderlist2 = placeholderlist[j].Split(',');
-                            seatingPlan[j, i] = new Seat(placeholderlist2[0], "Premium" ,Convert.ToBoolean(placeholderlist2[1]));
+                            seatingPlan[j, i] = new Seat(placeholderlist2[0], "Premium", Convert.ToBoolean(placeholderlist2[1]));
                         }
                         else
                         {
@@ -142,7 +349,7 @@ namespace Login_Sys
                         Char rowLetter = (char)('A' + r);
                         Char columnNumber = (char)(c + 1);
                         string seatName = $"{rowLetter}{columnNumber}";
-    
+
                         // if seat is in the back row (row 1) its Premium, rest are standard
                         if (columnNumber == 1)
                         {
@@ -152,8 +359,8 @@ namespace Login_Sys
                         {
                             seatingPlan[r, c] = new Seat(seatName, "Standard", false);
                         }
-    
-    
+
+
                     }
                 }
             }
@@ -162,13 +369,13 @@ namespace Login_Sys
         {
             StreamWriter SW = new StreamWriter(textfilename);
             SW.WriteLine($"{screen_rows}|{screen_columns}");
-            for(int i = 0; i < screen_columns; i++)
+            for (int i = 0; i < screen_columns; i++)
             {
-                for(int j = 0; i < screen_rows; j++)
+                for (int j = 0; i < screen_rows; j++)
                 {
                     if (j == screen_rows - 1)
                     {
-                        SW.Write($"{seatingPlan[j,i].getseatName()}, {seatingPlan[j, i].getisFull()}");
+                        SW.Write($"{seatingPlan[j, i].getseatName()}, {seatingPlan[j, i].getisFull()}");
                     }
                     else
                     {
@@ -180,7 +387,6 @@ namespace Login_Sys
             SW.Close();
         }
     }
-
     public class Login
     {
         protected int accessLevel = 0;
@@ -362,6 +568,7 @@ namespace Login_Sys
         }
     }
 }
+
 
 
 
