@@ -83,7 +83,7 @@ namespace Login_Sys
                 int option = menuEmployee("Cinema");
                 switch (option)
                 {
-                    //HI is placeholder for actual code and classes.
+                    //stupid ahh messages are placeholders
                     case 0:
                         Console.WriteLine("view yo seats");
                         Console.ReadLine();
@@ -112,15 +112,11 @@ namespace Login_Sys
                 "Exit"
             };
             int currentSelection = 0;
-
-
             while (true)
             {
                 Console.Clear();
                 Console.WriteLine($"\n\n          {hotelName} Management Sys");
                 Console.WriteLine("          Choose An Option\n");
-
-
                 for (int i = 0; i < options.Length; i++)
                 {
                     Console.Write("          ");
@@ -138,11 +134,7 @@ namespace Login_Sys
                     }
                     Console.WriteLine();
                 }
-
-
                 var key = Console.ReadKey(true);
-
-
                 if (key.Key == ConsoleKey.UpArrow)
                 {
                     currentSelection--;
@@ -444,31 +436,48 @@ namespace Login_Sys
             string[] users = getUsers();
             string[] passHashed = getPassHash();
             Console.WriteLine("\n    Welcome to the Cinema Managment Sys");
-            Console.WriteLine("    Please enter your username and password to login. Password is still typing even if you dont see it.");
+            Console.WriteLine("    Please enter your username and password to login.");
             Console.WriteLine("    Username: ");
             Console.Write("    Password:"); // both test users password is Password123. - 
-                                            // PREPOPULATE LOGIN WITH MANAGER AND EMPLOYEE SPECIFIC LOGIN.
             Console.SetCursorPosition(14, 3);
             string Username = Console.ReadLine();
             Console.SetCursorPosition(14, 4);
-            string inputPass = null;
+            string inputPass = "";
+            int startX = 14; 
+            int y = 4;
             while (true)
             {
                 var key = Console.ReadKey(true);
                 if (key.Key == ConsoleKey.Enter)
+                {
+                    if (inputPass.Length > 0)
+                    {
+                        Console.SetCursorPosition(startX + inputPass.Length - 1, y);
+                        Console.Write("*");
+                    }
                     break;
-                inputPass += key.KeyChar;
-                Console.SetCursorPosition(13 + inputPass.Length, 4);
-                if (inputPass.Length != 1)
-                {
-                    Console.Write("*"); 
-                    Console.Write($"{key.KeyChar}");
                 }
-                else if (inputPass.Length == 1)
+                else if (key.Key == ConsoleKey.Backspace)
                 {
-                    Console.Write("*"); 
+                    if (inputPass.Length > 0)
+                    {
+                        Console.SetCursorPosition(startX + inputPass.Length - 1, y);
+                        Console.Write(" ");
+                        inputPass = inputPass.Substring(0, inputPass.Length - 1);
+                        Console.SetCursorPosition(startX + inputPass.Length, y);
+                    }
                 }
-                    
+                else
+                {
+                    if (inputPass.Length > 0)
+                    {
+                        Console.SetCursorPosition(startX + inputPass.Length - 1, y);
+                        Console.Write("*");
+                    }
+                    inputPass += key.KeyChar;
+                    Console.SetCursorPosition(startX + inputPass.Length - 1, y);
+                    Console.Write(key.KeyChar);
+                }
             }
             Console.Write("\n");
             int userIndex = Array.FindIndex(users, u => u == Username);
