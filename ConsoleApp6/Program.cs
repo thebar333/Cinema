@@ -1,11 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-
 namespace Login_Sys
 {
     internal class Program
@@ -15,40 +13,51 @@ namespace Login_Sys
             Login login = new Login();
             login.Logon();
             Console.WriteLine(login.GetAccessLevel());
-            int AL = login.GetAccessLevel();
+            int AL = 1;
             utilities util = new utilities();
             util.showMenu(AL);
         }
     }
     class utilities
     {
-        public int[] BinSearch(int[] arr, int tarnum)
+
+        public string BinSearchMovies(string[] arr, string tarnum)
         {
             int arrLen = arr.Length;
             int left = 0;
-            int right = 0;
+            int right = arr.Length - 1;
             while (left <= right)
             {
                 int mid = left + (right - left) / 2;
-                if (arr[mid] == tarnum)
-                { return arr; }
-                else if (arr[mid] < tarnum)
-                { left = mid + 1; }
+                int result = string.Compare(tarnum.ToLower(), arr[mid].ToLower());
+
+                if (result == 0)
+                {
+                    return arr[mid];
+                }
+                else if (result > 0)
+                {
+                    left = mid + 1;
+                }
                 else
-                { right = mid - 1; }
+                {
+                    right = mid - 1;
+                }
             }
-            return arr;
+
+
+            return null;
         }
-        public int[] BubbleSort(int[] arr)
+        public static string[] BubbleSortMovies(string[] arr)
         {
             int n = arr.Length;
             for (int i = 0; i < n - 1; i++)
             {
                 for (int j = 0; j < n - i - 1; j++)
                 {
-                    if (arr[j] > arr[j + 1])
+                    if (string.Compare(arr[j], arr[j + 1]) > 0)
                     {
-                        int temp = arr[j];
+                        string temp = arr[j];
                         arr[j] = arr[j + 1];
                         arr[j + 1] = temp;
                     }
@@ -56,11 +65,10 @@ namespace Login_Sys
             }
             return arr;
         }
-        public int Discounts(string Type, int Cost)
+        public static decimal Discounts(string Type, decimal Cost)
         {
-            if (Type == "Student" | Type == "student") { return Cost - (Cost / 10); }
-            else if (Type == "Senior" | Type == "senior") { return Cost - (Cost / 5); }
-            else if (Type == "Prenium" | Type == "prenium") { return Cost + (Cost / 2); }
+            if (Type == "STUDENT") { return Cost - (Cost / 10); }
+            else if (Type == "SENIOR") { return Cost - (Cost / 5); }
             else { return Cost; }
         }
         public void showMenu(int accessLevel)
@@ -78,23 +86,75 @@ namespace Login_Sys
         protected void employeeMenu(int accessLevel)
         {
             bool running = true;
+            employee staff = new employee();
+            cinema myCinema = new cinema();
             while (running)
             {
                 int option = menuEmployee("Cinema");
                 switch (option)
                 {
-                    //stupid ahh messages are placeholders
+
                     case 0:
-                        Console.WriteLine("view yo seats");
-                        Console.ReadLine();
-                        break;
-                    case 1:
-                        Console.WriteLine("book yo seats");
+                        int roomToView = selectRoom("Cinema");
+                        switch (roomToView)
+                        {
+                            case 0:
+                                staff.viewSeats(myCinema.room1);
+
+                                break;
+
+                            case 1:
+                                staff.viewSeats(myCinema.room2);
+                                break;
+
+                            case 2:
+                                staff.viewSeats(myCinema.room3);
+
+                                break;
+
+                            case 3:
+                                staff.viewSeats(myCinema.room4);
+
+                                break;
+
+                        }
+                        Console.WriteLine("\nPress any key to return to menu...");
                         Console.ReadLine();
                         break;
                     case 2:
-                        Console.WriteLine("view yo screenings");
-                        Console.ReadLine();
+                        staff.viewScreenings(myCinema);
+                        break;
+                    case 1:
+                        Console.Clear();
+                        Console.WriteLine("\n Which movie would the customer like to see? (you may want to view screenings again)");
+                        string wantedMovie = Console.ReadLine();
+                        string foundmovie = BinSearchMovies(myCinema.getMovies(), wantedMovie);
+                        if (foundmovie != null)
+                        {
+                            Room[] rooms = { myCinema.room1, myCinema.room2, myCinema.room3, myCinema.room4 };
+                            Room targetRoom = null;
+
+                            foreach (Room room in rooms)
+                            {
+                                if (room.getMovies().Contains(foundmovie))
+                                {
+                                    targetRoom = room;
+                                    break;
+                                }
+                            }
+
+                            if (targetRoom != null)
+                            {
+                                Console.WriteLine($"{foundmovie} is playing in {targetRoom.getName()}. Press enter to continue to booking");
+                                Console.ReadLine();
+                                staff.bookSeats(targetRoom, foundmovie);
+
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Sorry we are not showing{wantedMovie}. Please check your capital letters or choose another");
+                        }
                         break;
                     case 3:
                         running = false;
@@ -107,15 +167,65 @@ namespace Login_Sys
         {
             string[] options = {
                 "View Seats",
-                "Book Seats",
                 "View Screenings",
+                "Book Seats",
                 "Exit"
             };
             int currentSelection = 0;
             while (true)
             {
+
                 Console.Clear();
-                Console.WriteLine($"\n\n          {hotelName} Management Sys");
+                Console.WriteLine($"\n\n          {hotelName} Management System (employee login)");
+                Console.WriteLine("          Choose An Option\n");
+                for (int i = 0; i < options.Length; i++)
+                {
+                    Console.Write("          ");
+
+                    if (i == currentSelection)
+                    {
+                        Console.BackgroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.WriteLine($">> {options[i]} <<");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"   {options[i]}   ");
+                    }
+                    Console.WriteLine();
+                }
+                var key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.UpArrow)
+                {
+                    currentSelection--;
+                    if (currentSelection < 0) currentSelection = options.Length - 1;
+                }
+                else if (key.Key == ConsoleKey.DownArrow)
+                {
+                    currentSelection++;
+                    if (currentSelection >= options.Length) currentSelection = 0;
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    return currentSelection;
+                }
+            }
+        }
+
+        protected static int selectRoom(string hotelName)
+        {
+            string[] options = {
+                "Room1",
+                "Room 2",
+                "Room 3",
+                "Room 4"
+            };
+            int currentSelection = 0;
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine($"\n\n          What Room would you like to view?");
                 Console.WriteLine("          Choose An Option\n");
                 for (int i = 0; i < options.Length; i++)
                 {
@@ -154,6 +264,8 @@ namespace Login_Sys
 
         protected void managerMenu(int accessLevel)
         {
+            manager boss = new manager();
+            cinema myCinema = new cinema();
             bool running = true;
             while (running)
             {
@@ -163,16 +275,66 @@ namespace Login_Sys
                 {
                     //HI is placeholder for actual code and classes.
                     case 0:
-                        Console.WriteLine("view yo seats");
-                        Console.ReadLine();
-                        break;
-                    case 1:
-                        Console.WriteLine("book yo seats");
+                        int roomToView = selectRoom("Cinema");
+                        switch (roomToView)
+                        {
+                            case 0:
+                                boss.viewSeats(myCinema.room1);
+
+                                break;
+
+                            case 1:
+                                boss.viewSeats(myCinema.room2);
+                                break;
+
+                            case 2:
+                                boss.viewSeats(myCinema.room3);
+
+                                break;
+
+                            case 3:
+                                boss.viewSeats(myCinema.room4);
+
+                                break;
+
+                        }
+                        Console.WriteLine("\nPress any key to return to menu...");
                         Console.ReadLine();
                         break;
                     case 2:
-                        Console.WriteLine("view yo screenings");
-                        Console.ReadLine();
+                        boss.viewScreenings(myCinema);
+                        break;
+                    case 1:
+                        Console.Clear();
+                        Console.WriteLine("\n Which movie would the customer like to see? (you may want to view screenings again)");
+                        string wantedMovie = Console.ReadLine();
+                        string foundmovie = BinSearchMovies(myCinema.getMovies(), wantedMovie);
+                        if (foundmovie != null)
+                        {
+                            Room[] rooms = { myCinema.room1, myCinema.room2, myCinema.room3, myCinema.room4 };
+                            Room targetRoom = null;
+
+                            foreach (Room room in rooms)
+                            {
+                                if (room.getMovies().Contains(foundmovie))
+                                {
+                                    targetRoom = room;
+                                    break;
+                                }
+                            }
+
+                            if (targetRoom != null)
+                            {
+                                Console.WriteLine($"{foundmovie} is playing in {targetRoom.getName()}. Press enter to continue to booking");
+                                Console.ReadLine();
+                                boss.bookSeats(targetRoom, foundmovie);
+
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Sorry we are not showing{wantedMovie}. Please check your capital letters or choose another");
+                        }
                         break;
                     case 3:
                         Console.WriteLine("view thy report of financies");
@@ -217,7 +379,7 @@ namespace Login_Sys
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine($"\n\n          {hotelName} Management Sys");
+                Console.WriteLine($"\n\n          {hotelName} Management System (manager login)");
                 Console.WriteLine("          Choose An Option\n");
 
 
@@ -265,13 +427,15 @@ namespace Login_Sys
         private string seatType;
         private string seatName;
         private bool isFull;
+        private decimal price;
 
         // constructor
-        public Seat(string type, string name, bool full)
+        public Seat(string type, string name, bool full, decimal price)
         {
             seatType = type;
             seatName = name;
             isFull = full;
+            this.price = price;
         }
         public string getseatName()
         {
@@ -280,6 +444,16 @@ namespace Login_Sys
         public bool getisFull()
         {
             return isFull;
+        }
+
+        public void fillSeat(bool status)
+        {
+            isFull = status;
+        }
+
+        public decimal getPrice()
+        {
+            return price;
         }
     }
     class Room
@@ -292,6 +466,7 @@ namespace Login_Sys
         private string textfilename;
         private int screen_rows;
         private int screen_columns;
+        private List<string> moviesShowing = new List<string>();
 
         //constructor
         public Room(int roomNumber, int rows, int columns)
@@ -301,9 +476,8 @@ namespace Login_Sys
             screen_rows = rows;
             screen_columns = columns;
             seatingPlan = new Seat[rows, columns];
-            Console.Write($"Please write the textfile name for this screen room #{roomNumber}:");
             textfilename = $"screen{roomNumber}" + ".txt";
-            // adding all the seats in
+
             if (File.Exists(textfilename) == true)
             {
                 StreamReader SR = new StreamReader(textfilename);
@@ -315,17 +489,17 @@ namespace Login_Sys
                 {
                     placeholder = SR.ReadLine();
                     placeholderlist = placeholder.Split('|');
-                    for (int j = 0; j < screen_rows; j++)
+                    for (int j = 0; i < screen_rows; j++)
                     {
                         if (screen_columns == 1)
                         {
                             string[] placeholderlist2 = placeholderlist[j].Split(',');
-                            seatingPlan[j, i] = new Seat(placeholderlist2[0], "Premium", Convert.ToBoolean(placeholderlist2[1]));
+                            seatingPlan[j, i] = new Seat(placeholderlist2[0], "Premium", Convert.ToBoolean(placeholderlist2[1]), 15);
                         }
                         else
                         {
                             string[] placeholderlist2 = placeholderlist[j].Split(',');
-                            seatingPlan[j, i] = new Seat(placeholderlist2[0], "Standard", Convert.ToBoolean(placeholderlist2[1]));
+                            seatingPlan[j, i] = new Seat(placeholderlist2[0], "Standard", Convert.ToBoolean(placeholderlist2[1]), 10);
                         }
                     }
                 }
@@ -339,17 +513,16 @@ namespace Login_Sys
                     {
                         // giving all the seats names like A1 B2
                         Char rowLetter = (char)('A' + r);
-                        Char columnNumber = (char)(c + 1);
-                        string seatName = $"{rowLetter}{columnNumber}";
+                        string seatName = $"{rowLetter}{c + 1}";
 
                         // if seat is in the back row (row 1) its Premium, rest are standard
-                        if (columnNumber == 1)
+                        if (rowLetter == 'A')
                         {
-                            seatingPlan[r, c] = new Seat(seatName, "Premium", false);
+                            seatingPlan[r, c] = new Seat("Premium", seatName, false, 15);
                         }
                         else
                         {
-                            seatingPlan[r, c] = new Seat(seatName, "Standard", false);
+                            seatingPlan[r, c] = new Seat("Standard", seatName, false, 10);
                         }
 
 
@@ -363,7 +536,7 @@ namespace Login_Sys
             SW.WriteLine($"{screen_rows}|{screen_columns}");
             for (int i = 0; i < screen_columns; i++)
             {
-                for (int j = 0; i < screen_rows; j++)
+                for (int j = 0; j < screen_rows; j++)
                 {
                     if (j == screen_rows - 1)
                     {
@@ -377,6 +550,41 @@ namespace Login_Sys
                 SW.WriteLine();
             }
             SW.Close();
+        }
+
+        public Seat[,] getSeatingPlan()
+        {
+            return seatingPlan;
+        }
+
+        public int getRows()
+        {
+            return screen_rows;
+        }
+
+        public int getColumns()
+        {
+            return screen_columns;
+        }
+
+        public int getRoomNumber()
+        {
+            return screenNumber;
+        }
+
+        public void addMovie(string movieName)
+        {
+            moviesShowing.Add(movieName);
+        }
+
+        public List<string> getMovies()
+        {
+            return moviesShowing;
+        }
+
+        public string getName()
+        {
+            return "Screen " + this.getRoomNumber();
         }
     }
     public class Login
@@ -443,7 +651,7 @@ namespace Login_Sys
             string Username = Console.ReadLine();
             Console.SetCursorPosition(14, 4);
             string inputPass = "";
-            int startX = 14; 
+            int startX = 14;
             int y = 4;
             while (true)
             {
@@ -599,21 +807,269 @@ namespace Login_Sys
             return startNum;
         }
     }
+    class employee
+    {
+        private int accesslevel;
+
+        public employee()
+        {
+            accesslevel = 0;
+        }
+
+        public void viewSeats(Room chosenRoom)
+        {
+            Console.Clear();
+            Console.WriteLine($"Seats in Screen {chosenRoom.getRoomNumber()}\n ");
+
+            Seat[,] plan = chosenRoom.getSeatingPlan();
+            int rows = chosenRoom.getRows();
+            int columns = chosenRoom.getColumns();
+
+            for (int r = 0; r < rows; r++)
+            {
+                for (int c = 0; c < columns; c++)
+                {
+                    if (plan[r, c].getisFull())
+                    {
+                        Console.Write(" [ X] ");
+
+                    }
+                    else
+                    {
+                        Console.Write($" [{plan[r, c].getseatName()}] ");
+                    }
+                }
+                Console.WriteLine();
+
+            }
+            Console.WriteLine("                      --Screen--");
+            Console.WriteLine();
+
+
+
+        }
+
+        public void bookSeats(Room chosenRoom, string chosenMovie)
+        {
+
+            viewSeats(chosenRoom);
+            Console.WriteLine($"Book seats to see {chosenMovie} in Room {chosenRoom.getRoomNumber()}");
+            Console.WriteLine("Seats in Row A are Premium (£15), all others are Standard (£10) ");
+            Console.WriteLine("\nEnter the seat you would like to book");
+            string wantedSeat = Console.ReadLine().ToUpper();
+            Seat[,] plan = chosenRoom.getSeatingPlan();
+            bool found = false;
+
+            for (int r = 0; r < chosenRoom.getRows(); r++)
+            {
+                for (int c = 0; c < chosenRoom.getColumns(); c++)
+                {
+                    if (plan[r, c].getseatName() == wantedSeat)
+                    {
+                        found = true;
+                        if (plan[r, c].getisFull() == true)
+                        {
+                            Console.WriteLine("\n Sorry that seat is taken");
+                            break;
+                        }
+                        else
+                        {
+                            decimal cost = plan[r, c].getPrice();
+                            decimal finalCost = 0;
+                            Console.WriteLine("\nIs the customer eligible for Student or Senior discount? (write discount type or no)");
+                            string DisAnswer = Console.ReadLine().ToUpper();
+                            if (DisAnswer == "STUDENT")
+                            {
+                                finalCost = utilities.Discounts("STUDENT", cost);
+                                Console.WriteLine($"\nThe seat {wantedSeat} has been booked! With a student discount the price is £{finalCost}");
+
+                            }
+                            else if (DisAnswer == "SENIOR")
+                            {
+                                finalCost = utilities.Discounts("SENIOR", cost);
+                                Console.WriteLine($"\nThe seat {wantedSeat} has been booked! With a senior discount the price is £{finalCost}");
+
+                            }
+                            else if (DisAnswer == "NO")
+                            {
+                                finalCost = cost;
+                                Console.WriteLine($"\nThe seat {wantedSeat} has been booked! With no discount the price is £{finalCost}");
+
+                            }
+                            else
+                            {
+                                Console.WriteLine("\n Please enter either the discount type or 'no' ");
+
+                            }
+
+                            plan[r, c].fillSeat(true);
+
+                            //chosenRoom.save();
+
+                        }
+                        break;
+                    }
+                }
+            }
+            if (!found)
+            {
+                Console.WriteLine("Invalid seat ID");
+            }
+
+            bool nextStep = true;
+            while (nextStep)
+            {
+                int option = twoOptionThing("Cinema");
+                switch (option)
+                {
+                    case 0:
+                        bookSeats(chosenRoom, chosenMovie);
+                        break;
+                    case 1:
+                        nextStep = false;
+                        break;
+
+                }
+            }
+        }
+        protected static int twoOptionThing(string hotelName)
+        {
+            string[] options = {
+                    "Book Another Seat",
+                    "Back to Main Menu"
+                };
+            int currentSelection = 0;
+            int startLine = Console.CursorTop;
+            while (true)
+            {
+                Console.SetCursorPosition(0, startLine);
+                Console.WriteLine(" \n What would you like to do next?");
+
+
+                for (int i = 0; i < options.Length; i++)
+                {
+
+
+                    if (i == currentSelection)
+                    {
+                        Console.BackgroundColor = ConsoleColor.White;
+                        Console.ForegroundColor = ConsoleColor.Black;
+                        Console.WriteLine($">> {options[i]} <<");
+                        Console.ResetColor();
+                    }
+                    else
+                    {
+                        Console.WriteLine($"   {options[i]}   ");
+                    }
+
+                }
+
+
+                var key = Console.ReadKey(true);
+
+
+                if (key.Key == ConsoleKey.UpArrow)
+                {
+                    currentSelection--;
+                    if (currentSelection < 0) currentSelection = options.Length - 1;
+                }
+                else if (key.Key == ConsoleKey.DownArrow)
+                {
+                    currentSelection++;
+                    if (currentSelection >= options.Length) currentSelection = 0;
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    return currentSelection;
+                }
+            }
+        }
+
+        public void viewScreenings(cinema theCinema)
+        {
+            Console.Clear();
+            Console.WriteLine("----------Current screenings----------");
+            Room[] allRooms = { theCinema.room1, theCinema.room2, theCinema.room3, theCinema.room4 };
+
+            foreach (Room currentRoom in allRooms)
+            {
+                Console.WriteLine("\n" + currentRoom.getName());
+                Console.WriteLine("-----");
+
+                List<string> movies = currentRoom.getMovies();
+                foreach (string movieName in movies)
+                {
+                    Console.WriteLine($"- {movieName}");
+                }
+            }
+            Console.ReadLine();
+
+        }
+
+    }
+    class cinema
+    {
+        public string[] movies;
+
+        //adding in rooms (you now need text files screen1.txt, screen2.txt etc)
+        public Room room1 = new Room(1, 12, 10);
+        public Room room2 = new Room(2, 10, 5);
+        public Room room3 = new Room(3, 8, 4);
+        public Room room4 = new Room(4, 5, 3);
+
+
+        public cinema()
+        {
+            movies = new string[] { "Shrek", "Shrek 2", "Cars", "The Empire Strikes Back", "Wolf of Wall Street", "Frozen", "The Bee Movie" };
+            utilities.BubbleSortMovies(movies);
+
+            int roomCounter = 0;
+            foreach (string movie in movies)
+            {
+                if (roomCounter == 0)
+                {
+                    room1.addMovie(movie);
+                }
+                else if (roomCounter == 1)
+                {
+                    room2.addMovie(movie);
+                }
+                else if (roomCounter == 2)
+                {
+                    room3.addMovie(movie);
+                }
+                else if (roomCounter == 3)
+                {
+                    room4.addMovie(movie);
+                }
+                roomCounter++;
+                if (roomCounter == 4)
+                {
+                    roomCounter = 0;
+                }
+            }
+
+        }
+
+        public string[] getMovies()
+        {
+            return movies;
+        }
+    }
+    class manager : employee
+    {
+        public void editMovies(cinema currentCinema)
+        {
+            Console.WriteLine("Current movie selection is: ");
+            for (int i = 0; i < currentCinema.movies.Length; i++)
+            {
+                Console.WriteLine(currentCinema.movies[i] + "\n");
+            }
+
+            Console.WriteLine("Enter Movie title to be added");
+            string newName = Console.ReadLine();
+            currentCinema.movies.Append(newName);
+
+        }
+    }
 }
-
-
-
-
-// USERS TXT FILE FORMAT
-//1| 2
-//2| user1
-//3| passHASH1
-//4| user2
-//5| passHASH2
-//
-//
-//
-//
-//
-//
-//
