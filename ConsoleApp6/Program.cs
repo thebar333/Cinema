@@ -56,22 +56,22 @@ namespace Login_Sys
 
             return null;
         }
-        public static string[] BubbleSortMovies(string[] arr)
+        public static List<string> BubbleSortMovies(List <string> list)
         {
-            int n = arr.Length;
+            int n = list.Count();
             for (int i = 0; i < n - 1; i++)
             {
                 for (int j = 0; j < n - i - 1; j++)
                 {
-                    if (string.Compare(arr[j], arr[j + 1]) > 0)
+                    if (string.Compare(list[j], list[j + 1]) > 0)
                     {
-                        string temp = arr[j];
-                        arr[j] = arr[j + 1];
-                        arr[j + 1] = temp;
+                        string temp = list[j];
+                        list[j] = list[j + 1];
+                        list[j + 1] = temp;
                     }
                 }
             }
-            return arr;
+            return list;
         }
         public static decimal Discounts(string Type, decimal Cost)
         {
