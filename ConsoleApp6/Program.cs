@@ -1128,7 +1128,7 @@ namespace Login_Sys
                         currentCinema.movies.Append(newName);
                     }
                 }
-               utilities.BubbleSortMovies(movies);
+               utilities.BubbleSortMovies(currentCinema.movies);
                
             }
             else
