@@ -1051,7 +1051,7 @@ namespace Login_Sys
 
         public cinema()
         {
-            movies = new string[] { "Shrek", "Shrek 2", "Cars", "The Empire Strikes Back", "Wolf of Wall Street", "Frozen", "The Bee Movie" };
+            List<string> movies = new List<string> { "Shrek", "Shrek 2", "Cars", "The Empire Strikes Back", "Wolf of Wall Street", "Frozen", "The Bee Movie" };
             utilities.BubbleSortMovies(movies);
 
             int roomCounter = 0;
