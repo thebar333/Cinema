@@ -1128,22 +1128,8 @@ namespace Login_Sys
                         currentCinema.movies.Append(newName);
                     }
                 }
+               utilities.BubbleSortMovies(movies);
                
-                int n = currentCinema.movies.Length;
-                for (int i = 0; i < n; i++)
-                {
-                    for(int j = 0; j<n; j++)
-                    {
-                        if (string.Compare(currentCinema.movies[j], currentCinema.movies[j + 1]) > 0)
-                        {
-                            string temp = currentCinema.movies[j];
-                            currentCinema.movies[j] = currentCinema.movies[j + 1];
-                            currentCinema.movies[j + 1] = temp;
-                        }
-
-                    }
-                }
-
             }
             else
             {
