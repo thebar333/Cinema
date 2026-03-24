@@ -1,21 +1,105 @@
+ using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace group_project
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            cinema myCinema = new cinema();
+            manager myManager = new manager();
+
+            myManager.editMovies(myCinema);
+            Console.ReadKey();
+        }
+    }
+    class cinema
+    {
+        private string name;
+        public string[] movies;
+        private string[] rooms;
+        class cinema()
+        {
+            private string name;
+            public string[] movies;
+
+            public cinema()
+            {
+                name = "view";
+                movies = new string[] { "shrek", "shrek 2", "cars", "The Empire Strikes Back", "Wolf of Wall Street", "Frozen", "The Bee Movie" };
+            }
+        }
+    }
+    class employee
+    {
+        protected int accessLevel;
+    }
+    class manager : employee
+    {
+        public void editMovies(cinema currentCinema)
+        {
+            Console.WriteLine("Current movie selection is: ");
+            for (int i = 0; i < currentCinema.movies.Length; i++)
+            {
+                Console.WriteLine(currentCinema.movies[i] + "\n");
+            }
+            Console.WriteLine("Enter Movie title to be added");
+            string newName  = Console.ReadLine();
+            currentCinema.movies.Append(newName);
+        }
+    }
+}
+
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Entire program almost done (just needs manager methods + menu for add screening and financial report) and testing it should be on the github link above for easier copying
+https://github.com/thebar333/Cinema/blob/master/ConsoleApp6/Program.cs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
+using System.Data;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading.Tasks;
+
 namespace Login_Sys
 {
     internal class Program
     {
         static void Main()
         {
-            Login login = new Login();
-            login.Logon();
-            Console.WriteLine(login.GetAccessLevel());
+            //Login login = new Login();
+            //login.Logon();
+            //Console.WriteLine(login.GetAccessLevel());
             int AL = 1;
             utilities util = new utilities();
             util.showMenu(AL);
+
+
         }
     }
     class utilities
@@ -121,10 +205,10 @@ namespace Login_Sys
                         Console.WriteLine("\nPress any key to return to menu...");
                         Console.ReadLine();
                         break;
-                    case 2:
+                    case 1:
                         staff.viewScreenings(myCinema);
                         break;
-                    case 1:
+                    case 2:
                         Console.Clear();
                         Console.WriteLine("\n Which movie would the customer like to see? (you may want to view screenings again)");
                         string wantedMovie = Console.ReadLine();
@@ -301,10 +385,10 @@ namespace Login_Sys
                         Console.WriteLine("\nPress any key to return to menu...");
                         Console.ReadLine();
                         break;
-                    case 2:
+                    case 1:
                         boss.viewScreenings(myCinema);
                         break;
-                    case 1:
+                    case 2:
                         Console.Clear();
                         Console.WriteLine("\n Which movie would the customer like to see? (you may want to view screenings again)");
                         string wantedMovie = Console.ReadLine();
@@ -365,10 +449,10 @@ namespace Login_Sys
         {
             string[] options = {
                     "View Seats",
-                    "Book Seats",
-                    "View Screenings",
-                    "Financial ReporT",
-                    "New Screening",
+                    "View Screening",
+                    "Book seats",
+                    "Financial Report",
+                    "Edit Screenings",
                     "Exit"
                 };
 
@@ -456,6 +540,7 @@ namespace Login_Sys
             return price;
         }
     }
+
     class Room
     {
         private int seatNum;
@@ -587,6 +672,9 @@ namespace Login_Sys
             return "Screen " + this.getRoomNumber();
         }
     }
+
+
+
     public class Login
     {
         protected int accessLevel = 0;
@@ -831,9 +919,7 @@ namespace Login_Sys
                 {
                     if (plan[r, c].getisFull())
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.Write(" [ X] ");
-                        Console.ForegroundColor = ConsoleColor.White;
 
                     }
                     else
@@ -844,8 +930,16 @@ namespace Login_Sys
                 Console.WriteLine();
 
             }
-            Console.WriteLine("                      --Screen--");
+            string screenLabel = "--Screen--";
+            int rowWidth = columns * 6;
+            int padding = (rowWidth - screenLabel.Length) / 2;
+            if (padding < 0)
+            {
+                padding = 0;
+            }
+
             Console.WriteLine();
+            Console.WriteLine(new string(' ', padding) + screenLabel);
 
 
 
@@ -871,39 +965,46 @@ namespace Login_Sys
                         found = true;
                         if (plan[r, c].getisFull() == true)
                         {
-                            Console.WriteLine("\n Sorry that seat is taken");
+                            Console.WriteLine("\nSorry that seat is taken");
                             break;
                         }
                         else
                         {
                             decimal cost = plan[r, c].getPrice();
                             decimal finalCost = 0;
-                            Console.WriteLine("\nIs the customer eligible for Student or Senior discount? (write discount type or no)");
-                            string DisAnswer = Console.ReadLine().ToUpper();
-                            if (DisAnswer == "STUDENT")
+                            bool validEntry = false;
+
+                            while (!validEntry)
                             {
-                                finalCost = utilities.Discounts("STUDENT", cost);
-                                Console.WriteLine($"\nThe seat {wantedSeat} has been booked! With a student discount the price is £{finalCost}");
+                                Console.WriteLine("\nIs the customer eligible for Student or Senior discount? (write discount type or no)");
+                                string DisAnswer = Console.ReadLine().ToUpper();
+                                if (DisAnswer == "STUDENT")
+                                {
+                                    finalCost = utilities.Discounts("STUDENT", cost);
+                                    Console.WriteLine($"\nThe seat {wantedSeat} has been booked! With a student discount the price is £{finalCost}");
+                                    validEntry = true;
 
+                                }
+                                else if (DisAnswer == "SENIOR")
+                                {
+                                    finalCost = utilities.Discounts("SENIOR", cost);
+                                    Console.WriteLine($"\nThe seat {wantedSeat} has been booked! With a senior discount the price is £{finalCost}");
+                                    validEntry = true;
+
+                                }
+                                else if (DisAnswer == "NO")
+                                {
+                                    finalCost = cost;
+                                    Console.WriteLine($"\nThe seat {wantedSeat} has been booked! With no discount the price is £{finalCost}");
+                                    validEntry = true;
+
+                                }
+                                else
+                                {
+                                    Console.WriteLine("\nPlease enter either the discount type or 'no' ");
+
+                                }
                             }
-                            else if (DisAnswer == "SENIOR")
-                            {
-                                finalCost = utilities.Discounts("SENIOR", cost);
-                                Console.WriteLine($"\nThe seat {wantedSeat} has been booked! With a senior discount the price is £{finalCost}");
-
-                            }
-                            else if (DisAnswer == "NO")
-                            {
-                                finalCost = cost;
-                                Console.WriteLine($"\nThe seat {wantedSeat} has been booked! With no discount the price is £{finalCost}");
-
-                            }
-                            else
-                            {
-                                Console.WriteLine("\n Please enter either the discount type or 'no' ");
-
-                            }
-
                             plan[r, c].fillSeat(true);
 
                             //chosenRoom.save();
@@ -1058,6 +1159,7 @@ namespace Login_Sys
             return movies;
         }
     }
+
     class manager : employee
     {
         public void editMovies(cinema currentCinema)
