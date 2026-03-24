@@ -461,7 +461,7 @@ namespace Login_Sys
         }
     }
 
-    class Room
+        class Room
     {
         private int seatNum;
         private Seat[,] seatingPlan;
@@ -490,21 +490,22 @@ namespace Login_Sys
                 string[] placeholderlist = placeholder.Split('|');
                 screen_rows = Convert.ToInt32(placeholderlist[0]);
                 screen_columns = Convert.ToInt32(placeholderlist[1]);
-                for (int i = 0; i < screen_columns; i++)
+                seatingPlan = new Seat[screen_rows, screen_columns];
+                for (int i = 0; i < screen_rows; i++)
                 {
                     placeholder = SR.ReadLine();
                     placeholderlist = placeholder.Split('|');
-                    for (int j = 0; i < screen_rows; j++)
+                    for (int j = 0; j < screen_columns; j++)
                     {
-                        if (screen_columns == 1)
+                        if (screen_rows == 0)
                         {
                             string[] placeholderlist2 = placeholderlist[j].Split(',');
-                            seatingPlan[j, i] = new Seat(placeholderlist2[0], "Premium", Convert.ToBoolean(placeholderlist2[1]), 15);
+                            seatingPlan[i, j] = new Seat("premium", placeholderlist2[0], Convert.ToBoolean(placeholderlist2[1]), 15);
                         }
                         else
                         {
                             string[] placeholderlist2 = placeholderlist[j].Split(',');
-                            seatingPlan[j, i] = new Seat(placeholderlist2[0], "Standard", Convert.ToBoolean(placeholderlist2[1]), 10);
+                            seatingPlan[i, j] = new Seat("standard", placeholderlist2[0], Convert.ToBoolean(placeholderlist2[1]), 10);
                         }
                     }
                 }
@@ -539,17 +540,17 @@ namespace Login_Sys
         {
             StreamWriter SW = new StreamWriter(textfilename);
             SW.WriteLine($"{screen_rows}|{screen_columns}");
-            for (int i = 0; i < screen_columns; i++)
+            for (int i = 0; i < screen_rows; i++)
             {
-                for (int j = 0; j < screen_rows; j++)
+                for (int j = 0; j < screen_columns; j++)
                 {
                     if (j == screen_rows - 1)
                     {
-                        SW.Write($"{seatingPlan[j, i].getseatName()}, {seatingPlan[j, i].getisFull()}");
+                        SW.Write($"{seatingPlan[i, j].getseatName()}, {seatingPlan[i, j].getisFull()}");
                     }
                     else
                     {
-                        SW.Write($"{seatingPlan[j, i].getseatName()}, {seatingPlan[j, i].getisFull()}|");
+                        SW.Write($"{seatingPlan[i, j].getseatName()}, {seatingPlan[i, j].getisFull()}|");
                     }
                 }
                 SW.WriteLine();
@@ -592,8 +593,6 @@ namespace Login_Sys
             return "Screen " + this.getRoomNumber();
         }
     }
-
-
 
     public class Login
     {
