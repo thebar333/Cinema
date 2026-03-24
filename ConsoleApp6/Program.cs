@@ -1,80 +1,3 @@
- using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace group_project
-{
-    internal class Program
-    {
-        static void Main(string[] args)
-        {
-            cinema myCinema = new cinema();
-            manager myManager = new manager();
-
-            myManager.editMovies(myCinema);
-            Console.ReadKey();
-        }
-    }
-    class cinema
-    {
-        private string name;
-        public string[] movies;
-        private string[] rooms;
-        class cinema()
-        {
-            private string name;
-            public string[] movies;
-
-            public cinema()
-            {
-                name = "view";
-                movies = new string[] { "shrek", "shrek 2", "cars", "The Empire Strikes Back", "Wolf of Wall Street", "Frozen", "The Bee Movie" };
-            }
-        }
-    }
-    class employee
-    {
-        protected int accessLevel;
-    }
-    class manager : employee
-    {
-        public void editMovies(cinema currentCinema)
-        {
-            Console.WriteLine("Current movie selection is: ");
-            for (int i = 0; i < currentCinema.movies.Length; i++)
-            {
-                Console.WriteLine(currentCinema.movies[i] + "\n");
-            }
-            Console.WriteLine("Enter Movie title to be added");
-            string newName  = Console.ReadLine();
-            currentCinema.movies.Append(newName);
-        }
-    }
-}
-
-
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Entire program almost done (just needs manager methods + menu for add screening and financial report) and testing it should be on the github link above for easier copying
-https://github.com/thebar333/Cinema/blob/master/ConsoleApp6/Program.cs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -92,9 +15,9 @@ namespace Login_Sys
     {
         static void Main()
         {
-            //Login login = new Login();
-            //login.Logon();
-            //Console.WriteLine(login.GetAccessLevel());
+            Login login = new Login();
+            login.Logon();
+            Console.WriteLine(login.GetAccessLevel());
             int AL = 1;
             utilities util = new utilities();
             util.showMenu(AL);
