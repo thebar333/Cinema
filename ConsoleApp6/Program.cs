@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -831,7 +831,9 @@ namespace Login_Sys
                 {
                     if (plan[r, c].getisFull())
                     {
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.Write(" [ X] ");
+                        Console.ForegroundColor = ConsoleColor.White;
 
                     }
                     else
