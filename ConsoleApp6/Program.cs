@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -165,6 +166,10 @@ namespace Login_Sys
                         break;
                     case 3:
                         running = false;
+                        myCinema.room1.save();
+                        myCinema.room2.save();
+                        myCinema.room3.save();
+                        myCinema.room4.save();
                         Console.WriteLine("\n\n          System shutting down...");
                         break;
                 }
@@ -360,6 +365,10 @@ namespace Login_Sys
                         
                     case 5:
                         running = false;
+                        myCinema.room1.save();
+                        myCinema.room2.save();
+                        myCinema.room3.save();
+                        myCinema.room4.save();
                         Console.WriteLine("\n\n          System shutting down...");
                         break;
                 }
@@ -1158,6 +1167,3 @@ namespace Login_Sys
         }
     }
 }
-
-
-
