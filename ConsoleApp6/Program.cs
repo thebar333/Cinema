@@ -355,12 +355,9 @@ namespace Login_Sys
                     case 4:
                         Console.WriteLine("create a new screnning");
                         Console.ReadLine();
-                        if (accessLevel == 0)
-                        { break; }
-                        else
-                        {//call here break; }
-                        }
+                        boss.editMovies(myCinema);
                         break;
+                        
                     case 5:
                         running = false;
                         Console.WriteLine("\n\n          System shutting down...");
@@ -1092,11 +1089,90 @@ namespace Login_Sys
             {
                 Console.WriteLine(currentCinema.movies[i] + "\n");
             }
+            Console.WriteLine("Enter (1) for adding, enter (2) so removing a movie");
+            bool valid = false;
+            int option = -1;
+            while (valid == false)
+            {
+                try
+                {
+                    option = int.Parse(Console.ReadLine());
+                    if (option == 1||option == 2)
+                    {
+                        valid = true;
 
-            Console.WriteLine("Enter Movie title to be added");
-            string newName = Console.ReadLine();
-            currentCinema.movies.Append(newName);
+                    }
+                    else
+                    {
+                        valid = false;
 
+                    }
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("input invalid, please try again");
+                }
+            }
+            if (option == 1)
+            {
+                Console.WriteLine("Enter Movie title to be added");
+                string newName = Console.ReadLine();
+                for (int i = 0; i < currentCinema.movies.Length; i++)
+                {
+                    if (currentCinema.movies[i] == "GAP")
+                    {
+                        currentCinema.movies[i] = newName;
+                    }
+                    else
+                    {
+                        currentCinema.movies.Append(newName);
+                    }
+                }
+               
+                int n = currentCinema.movies.Length;
+                for (int i = 0; i < n; i++)
+                {
+                    for(int j = 0; j<n; j++)
+                    {
+                        if (string.Compare(currentCinema.movies[j], currentCinema.movies[j + 1]) > 0)
+                        {
+                            string temp = currentCinema.movies[j];
+                            currentCinema.movies[j] = currentCinema.movies[j + 1];
+                            currentCinema.movies[j + 1] = temp;
+                        }
+
+                    }
+                }
+
+            }
+            else
+            {
+                Console.WriteLine("Enter the name of the movie you wish to removed from the set list");
+                string toRemove = Console.ReadLine();
+                bool removed = false;
+                while (removed == false)
+                {
+                    for (int i = 0; i < currentCinema.movies.Length; i++)
+                    {
+                        if (currentCinema.movies[i] == toRemove)
+                        {
+                            currentCinema.movies[i] = "GAP";
+                            removed = true;
+                            Console.WriteLine(toRemove + " has been removed");
+                        }
+                        else { }
+
+                    }
+                }
+                if (removed == false)
+                {
+                    Console.WriteLine("Film is not in the list.");
+                }
+                
+            }
         }
     }
 }
+
+
+
