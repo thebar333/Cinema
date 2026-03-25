@@ -29,9 +29,9 @@ namespace Login_Sys
     class utilities
     {
 
-        public string BinSearchMovies(string[] arr, string tarnum)
+        public string BinSearchMovies(List<string> list, string tarnum)
         {
-            int arrLen = arr.Length;
+            string[] arr = list.ToArray();
             int left = 0;
             int right = arr.Length - 1;
             while (left <= right)
@@ -1040,8 +1040,7 @@ namespace Login_Sys
     }
     class cinema
     {
-        public string[] movies;
-
+        public List<string> movies;
         //adding in rooms (you now need text files screen1.txt, screen2.txt etc)
         public Room room1 = new Room(1, 12, 10);
         public Room room2 = new Room(2, 10, 5);
@@ -1051,9 +1050,8 @@ namespace Login_Sys
 
         public cinema()
         {
-            List<string> movies = new List<string> { "Shrek", "Shrek 2", "Cars", "The Empire Strikes Back", "Wolf of Wall Street", "Frozen", "The Bee Movie" };
+            movies = new List<string> { "Shrek", "Shrek 2", "Cars", "The Empire Strikes Back", "Wolf of Wall Street", "Frozen", "The Bee Movie" };
             utilities.BubbleSortMovies(movies);
-
             int roomCounter = 0;
             foreach (string movie in movies)
             {
@@ -1082,7 +1080,7 @@ namespace Login_Sys
 
         }
 
-        public string[] getMovies()
+        public List<string> getMovies()
         {
             return movies;
         }
@@ -1093,11 +1091,11 @@ namespace Login_Sys
         public void editMovies(cinema currentCinema)
         {
             Console.WriteLine("Current movie selection is: ");
-            for (int i = 0; i < currentCinema.movies.Length; i++)
+            foreach (string movie in currentCinema.movies)
             {
-                Console.WriteLine(currentCinema.movies[i] + "\n");
+                Console.WriteLine(movie + "\n");
             }
-            Console.WriteLine("Enter (1) for adding, enter (2) so removing a movie");
+            Console.WriteLine("Enter (1) for adding, enter (2) for removing a movie");
             bool valid = false;
             int option = -1;
             while (valid == false)
@@ -1105,64 +1103,25 @@ namespace Login_Sys
                 try
                 {
                     option = int.Parse(Console.ReadLine());
-                    if (option == 1||option == 2)
-                    {
-                        valid = true;
-
-                    }
-                    else
-                    {
-                        valid = false;
-
-                    }
+                    if (option == 1 || option == 2) valid = true;
                 }
-                catch (Exception)
-                {
-                    Console.WriteLine("input invalid, please try again");
-                }
+                catch (Exception) { Console.WriteLine("input invalid, please try again"); }
             }
             if (option == 1)
             {
                 Console.WriteLine("Enter Movie title to be added");
                 string newName = Console.ReadLine();
-                for (int i = 0; i < currentCinema.movies.Length; i++)
-                {
-                    if (currentCinema.movies[i] == "GAP")
-                    {
-                        currentCinema.movies[i] = newName;
-                    }
-                    else
-                    {
-                        currentCinema.movies.Append(newName);
-                    }
-                }
-               utilities.BubbleSortMovies(currentCinema.movies);
-               
+                currentCinema.movies.Add(newName);
+                utilities.BubbleSortMovies(currentCinema.movies);
             }
             else
             {
-                Console.WriteLine("Enter the name of the movie you wish to removed from the set list");
+                Console.WriteLine("Enter the name of the movie you wish to remove from the set list");
                 string toRemove = Console.ReadLine();
-                bool removed = false;
-                while (removed == false)
-                {
-                    for (int i = 0; i < currentCinema.movies.Length; i++)
-                    {
-                        if (currentCinema.movies[i] == toRemove)
-                        {
-                            currentCinema.movies[i] = "GAP";
-                            removed = true;
-                            Console.WriteLine(toRemove + " has been removed");
-                        }
-                        else { }
-
-                    }
-                }
-                if (removed == false)
-                {
+                if (currentCinema.movies.Remove(toRemove))
+                    Console.WriteLine(toRemove + " has been removed");
+                else
                     Console.WriteLine("Film is not in the list.");
-                }
-                
             }
         }
     }
