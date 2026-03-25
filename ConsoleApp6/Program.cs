@@ -1038,7 +1038,6 @@ namespace Login_Sys
     class cinema
     {
         public List<string> movies;
-        //adding in rooms (you now need text files screen1.txt, screen2.txt etc)
         public Room room1 = new Room(1, 12, 10);
         public Room room2 = new Room(2, 10, 5);
         public Room room3 = new Room(3, 8, 4);
