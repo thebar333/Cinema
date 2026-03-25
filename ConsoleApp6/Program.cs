@@ -18,12 +18,9 @@ namespace Login_Sys
         {
             Login login = new Login();
             login.Logon();
-            Console.WriteLine(login.GetAccessLevel());
-            int AL = 1;
+            int AL = login.GetAccessLevel();
             utilities util = new utilities();
             util.showMenu(AL);
-
-
         }
     }
     class utilities
@@ -225,7 +222,7 @@ namespace Login_Sys
             }
         }
 
-        protected static int selectRoom(string hotelName)
+        public static int selectRoom(string hotelName)
         {
             string[] options = {
                 "Room1",
@@ -1108,13 +1105,18 @@ namespace Login_Sys
                 catch (Exception) { Console.WriteLine("input invalid, please try again"); }
             }
             if (option == 1)
-            {
-                Console.WriteLine("Enter Movie title to be added");
-                string newName = Console.ReadLine();
-                currentCinema.movies.Add(newName);
-                utilities.BubbleSortMovies(currentCinema.movies);
-            }
-            else
+                if (option == 1)
+                {
+                    Console.WriteLine("Enter Movie title to be added");
+                    string newName = Console.ReadLine();
+                    currentCinema.movies.Add(newName);
+                    utilities.BubbleSortMovies(currentCinema.movies);
+                    Room[] rooms = { currentCinema.room1, currentCinema.room2, currentCinema.room3, currentCinema.room4 };
+                    int chosenRoom = utilities.selectRoom("Cinema");
+                    rooms[chosenRoom].addMovie(newName);
+                    Console.WriteLine($"{newName} has been added to {rooms[chosenRoom].getName()}");
+                }
+                else
             {
                 Console.WriteLine("Enter the name of the movie you wish to remove from the set list");
                 string toRemove = Console.ReadLine();
