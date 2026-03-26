@@ -1,14 +1,8 @@
-
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
-using System.Data;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Login_Sys
 {
@@ -612,17 +606,6 @@ namespace Login_Sys
             return accessLevel;
         }
         protected int attemptNum = 0;
-        protected string vernierEncryption(string s) //takes last 5 char as key
-        {
-            if (s.Length <= 5) return Convert.ToBase64String(Encoding.ASCII.GetBytes(s));
-            string m = s.Substring(0, s.Length - 5);
-            string k = s.Substring(s.Length - 5);
-            byte[] b = Encoding.ASCII.GetBytes(m);
-            byte[] r = new byte[b.Length];
-            for (int i = 0; i < b.Length; i++)
-            { r[i] = (byte)((b[i] + k[i % 5]) % 256); }
-            return Convert.ToBase64String(r.Concat(Encoding.ASCII.GetBytes(k)).ToArray());
-        }
         protected string[] getUsers()
         {
             string[] users = new string[100];
@@ -704,8 +687,8 @@ namespace Login_Sys
             int userIndex = Array.FindIndex(users, u => u == Username);
             if (userIndex >= 0)
             {
-                string partHashPass = this.vernierEncryption(inputPass);
-                int hashPass = this.hashPass(partHashPass);
+                string salt = "Hk7fSDh&*(a" + Username + Username.Length.ToString() + "xK9#yiu8";
+                long hashPass = this.hashPass(inputPass,salt);
                 if (passHashed[userIndex] == hashPass.ToString())
                 {
                     Console.WriteLine("Login successful.");
@@ -795,28 +778,57 @@ namespace Login_Sys
                 Console.Clear();
                 this.SignUp();
             }
-            string inputHash = Convert.ToString(hashPass(inputPass));
+            string salt = "Hk7fSDh&*(a" + Username + Username.Length.ToString() + "xK9#yiu8";
+            string inputHash = Convert.ToString(hashPass(inputPass,salt));
             sw.WriteLine();
             sw.WriteLine(Username);
             sw.WriteLine(inputHash);
             sw.Close();
 
         }
-        protected int hashPass(string s)
+        protected long hashPass(string a, string salt) 
         {
-            int startNum = 0;
-            for (int i = 0; i < s.Length; i++)
+            string s;
+            if (a.Length <= 5) s = Convert.ToBase64String(Encoding.ASCII.GetBytes(a));
+            else
             {
-                char c = s[i];
-                int inpNum = c - '0';
-                if (i % 2 == 0)
+                string m = a.Substring(0, a.Length - 5);
+                string k = a.Substring(a.Length - 5);
+                byte[] b = Encoding.ASCII.GetBytes(m);
+                byte[] r = new byte[b.Length];
+                for (int i = 0; i < b.Length; i++)
+                { r[i] = (byte)((b[i] + k[i % 5]) % 256); }
+                s = Convert.ToBase64String(r.Concat(Encoding.ASCII.GetBytes(k)).ToArray());
+            }// vernier encryption using last 5 char as key.
+            int inpNum2 = 0;
+            for (int i = 0; i < salt.Length; i++)
+            {
+                char c = salt[i];
+                inpNum2 += (int)c;
+            } // another value to jumble the numbers
+            long startNum = 0;
+            string d = salt + s;
+            for (int j = 0; j < 10000; j++)
+            {
+                for (int i = 0; i < d.Length; i++)
                 {
-                    inpNum = inpNum * i;
+                    char c = d[i];
+                    int inpNum = c - '0';
+                    if (i % 2 == 0)
+                    {
+                        startNum *= inpNum;
+                        startNum *= inpNum2;
+                        startNum *= 6364136223846793005L;    // large prime multiplier
+                        startNum ^= startNum >> 33;          // fold high bits down and MIX em together (^= is XOR) (>> right shifts long)
+                    }
+                    startNum += (inpNum * i) * j;
+                    startNum = startNum * 999331;
+                    startNum = startNum % 4294967291L;
+                    startNum = ~startNum; // ~flips all bits in a num
+
                 }
-                startNum += inpNum * i;
             }
-            startNum = startNum * 999331;
-            startNum = startNum % 429496729;
+            startNum = startNum % 4294967291L;
             return startNum;
         }
     }
