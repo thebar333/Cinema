@@ -47,7 +47,7 @@ namespace Login_Sys
 
             return null;
         }
-        public static List<string> BubbleSortMovies(List <string> list)
+        public static List<string> BubbleSortMovies(List<string> list)
         {
             int n = list.Count();
             for (int i = 0; i < n - 1; i++)
@@ -353,7 +353,7 @@ namespace Login_Sys
                         Console.ReadLine();
                         boss.editMovies(myCinema);
                         break;
-                        
+
                     case 5:
                         running = false;
                         myCinema.room1.save();
@@ -461,7 +461,7 @@ namespace Login_Sys
         }
     }
 
-        class Room
+    class Room
     {
         private int seatNum;
         private Seat[,] seatingPlan;
@@ -688,7 +688,7 @@ namespace Login_Sys
             if (userIndex >= 0)
             {
                 string salt = "Hk7fSDh&*(a" + Username + Username.Length.ToString() + "xK9#yiu8";
-                long hashPass = this.hashPass(inputPass,salt);
+                long hashPass = this.hashPass(inputPass, salt);
                 if (passHashed[userIndex] == hashPass.ToString())
                 {
                     Console.WriteLine("Login successful.");
@@ -779,14 +779,14 @@ namespace Login_Sys
                 this.SignUp();
             }
             string salt = "Hk7fSDh&*(a" + Username + Username.Length.ToString() + "xK9#yiu8";
-            string inputHash = Convert.ToString(hashPass(inputPass,salt));
+            string inputHash = Convert.ToString(hashPass(inputPass, salt));
             sw.WriteLine();
             sw.WriteLine(Username);
             sw.WriteLine(inputHash);
             sw.Close();
 
         }
-        protected long hashPass(string a, string salt) 
+        protected long hashPass(string a, string salt)
         {
             string s;
             if (a.Length <= 5) s = Convert.ToBase64String(Encoding.ASCII.GetBytes(a));
@@ -1128,14 +1128,14 @@ namespace Login_Sys
                     Console.WriteLine($"{newName} has been added to {rooms[chosenRoom].getName()}");
                 }
                 else
-            {
-                Console.WriteLine("Enter the name of the movie you wish to remove from the set list");
-                string toRemove = Console.ReadLine();
-                if (currentCinema.movies.Remove(toRemove))
-                    Console.WriteLine(toRemove + " has been removed");
-                else
-                    Console.WriteLine("Film is not in the list.");
-            }
+                {
+                    Console.WriteLine("Enter the name of the movie you wish to remove from the set list");
+                    string toRemove = Console.ReadLine();
+                    if (currentCinema.movies.Remove(toRemove))
+                        Console.WriteLine(toRemove + " has been removed");
+                    else
+                        Console.WriteLine("Film is not in the list.");
+                }
         }
     }
 }
