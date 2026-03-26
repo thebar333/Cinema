@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml.Schema;
 
 namespace Login_Sys
 {
@@ -345,7 +346,8 @@ namespace Login_Sys
                         if (accessLevel == 0)
                         { break; }
                         else
-                        {//call here break; }
+                        {
+                            boss.ViewFinancialReport(myCinema);
                             break;
                         }
                     case 4:
@@ -535,6 +537,21 @@ namespace Login_Sys
                     }
                 }
             }
+        }
+        public void FinancialReport()
+        {
+            decimal total = 0;
+            for(int i = 0; i < screen_rows; i++)
+            {
+                for(int j = 0; j < screen_columns; j++)
+                {
+                    if (seatingPlan[i, j].getisFull() == true)
+                    {
+                        total = total + seatingPlan[i, j].getPrice();
+                    }
+                }
+            }
+            Console.WriteLine($"Screen room #{screenNumber} revenue is £{total}");
         }
         public void save()
         {
@@ -1096,6 +1113,13 @@ namespace Login_Sys
 
     class manager : employee
     {
+        public void ViewFinancialReport(cinema currentCinema)
+        {
+            currentCinema.room1.FinancialReport();
+            currentCinema.room2.FinancialReport();
+            currentCinema.room3.FinancialReport();
+            currentCinema.room4.FinancialReport();
+        }
         public void editMovies(cinema currentCinema)
         {
             Console.WriteLine("Current movie selection is: ");
