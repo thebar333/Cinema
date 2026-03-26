@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Xml.Schema;
 
 namespace Login_Sys
 {
@@ -341,15 +340,9 @@ namespace Login_Sys
                         }
                         break;
                     case 3:
-                        Console.WriteLine("view thy report of financies");
-                        Console.ReadLine();
-                        if (accessLevel == 0)
-                        { break; }
-                        else
-                        {
-                            boss.ViewFinancialReport(myCinema);
-                            break;
-                        }
+                        boss.ViewFinancialReport(myCinema);
+                        Console.ReadKey();
+                        break;
                     case 4:
                         Console.WriteLine("create a new screnning");
                         Console.ReadLine();
@@ -547,8 +540,8 @@ namespace Login_Sys
                 {
                     if (seatingPlan[i, j].getisFull() == true)
                     {
-                        total = total + seatingPlan[i, j].getPrice();
-                    }
+                        total = total + seatingPlan[i, j].getPrice(); // Not recognising prenium pricing???
+                    }                                                 // Could just make it a 'running total' looking back
                 }
             }
             Console.WriteLine($"Screen room #{screenNumber} revenue is £{total}");
